@@ -2,7 +2,7 @@
   <p style="font-family: 'American Typewriter', 'Courier New', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', monospace; text-align: left; margin-right: auto; line-height: 1.2;">
     <font color='black'><strong>Digital Signal Processing</strong><br>Curso R6575-2023<br>David Ochoa Cruz</font>
   </p>
-  <img src="logo-utn-frba-electronica.svg" alt="Logo UTN FRBA" width="200" height="40" style="flex-shrink: 0; margin-left: 10px;">
+  <img src="TS-R6575/logo-utn-frba-electronica.svg" alt="Logo UTN FRBA" width="200" height="40" style="flex-shrink: 0; margin-left: 10px;">
 </div>
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 <a name="readme-top"></a>
@@ -37,7 +37,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="LogoUTN-FRBA-B.png" alt="Logo" width="80" height="80">
+    <img src="LogoUTN-FRBA-B.png" alt="Logo" width="200" height="200">
   </a>
 
   <h3 align="center">Best-README-Template</h3>
