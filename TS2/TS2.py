@@ -9,68 +9,43 @@ import numpy as np
 import matplotlib.pyplot as plt
 from IPython.display import display, Image
 from scipy import signal
+import psdmodulos as psd
 
 #%%     Parámetros de la Simulación
-fs = 500                #   Frecuencia de muestreo en Hz
+fs = 1000                #   Frecuencia de muestreo en Hz
 N  = fs                 #   Cantidad de muestras digitalizadas por el ADC (# muestras)
 Ts = 1/fs               #   Periodo de muestreo
-T_simulacion = N*Ts     #   Duracion total del la simulación en segundos
-
-#%%# Funcion para graficar las señales
-
-def plot_signal(tt, signal, title, color):
-    plt.figure(figsize=(12, 4))
-    plt.plot(tt, signal,label=title, color=color)
-    plt.xlabel('tiempo [s]')
-    plt.ylabel('Amplitud [V]')
-    plt.grid(True, linestyle='dotted', color='gray')
-    plt.savefig(f'{title}.png', bbox_inches='tight', transparent=True)
-    plt.close()
-# Creamos las funciones para generar las siguentes señales periodicas:
-#   Señal Senoidal
-def mi_funcion_sen(vmax = 1, dc = 0, ff = 1, ph = 0, nn = N, fs = fs):
-    # Grilla Temporal
-    tt = np.arange(start=0, stop=T_simulacion, step=Ts)
-    xx = vmax * np.sin(2 * np.pi * ff * tt + ph) + dc
-    return tt, xx
-
-#   Señal Cuadrada
-def mi_funcion_cuadrada(vmax = 1, dc = 0, ff = 1, duty = 0.5, nn = N, fs = fs):
-    tt = np.arange(start=0, stop=T_simulacion, step=Ts)
-    xx = vmax*signal.square((2 * np.pi * ff * tt),duty) + dc
-    return tt, xx
-
-#   Señal Triangular
-def mi_funcion_triangular(vmax = 1, dc = 0, ff = 1, width = 0.5, nn = N, fs = fs):
-    tt = np.arange(start=0, stop=T_simulacion, step=Ts)
-    xx = vmax*signal.sawtooth((2 * np.pi * ff * tt),width) + dc
-    return tt, xx
-
+    
 #%% Parametros de la señal
-frecuencia    = 10        # Hz
-Amplitud      = 2         # V
-Phase         = 0*np.pi/2.0 # Radianes
-ValorMedio    = 0         # V
-Duty          = 0.5       # 50% de ciclo de actividad
-Width         = 0.5           
+frecuencia  = 50            # frecuencia de la señal en Hz
+Amplitud    = np.sqrt(2)    # Amplitud máxiva en Volt
+Phase       = np.pi/2.0     # Fase en radianes
+ValorMedio  = 0             # Componente de continua
+snr         = 30            # Relación señal-ruido en dB        
+ 
+tt, xx = psd.SignalGenerator(Amplitud, frecuencia, Phase, ValorMedio, N, fs, signal='Senoidal', noise='normal', snr=snr)
+psd.plot_signal(tt, xx, 'SenoidalRuido', color='red', snr=snr)
 
-# Señales periódicas
-tiempo, SignalSen = mi_funcion_sen(vmax=Amplitud, ff=frecuencia, dc=ValorMedio, ph=Phase)
-tiempo, SignalCua = mi_funcion_cuadrada(vmax=Amplitud, ff=frecuencia, dc=ValorMedio, duty=Duty)
-tiempo, SignalTri = mi_funcion_triangular(vmax=Amplitud, ff=frecuencia, dc=ValorMedio, width=Width)
+#%% Algoritmo de la DFT
+def mi_funcion_DFT(xx):
+    N = len(xx)  # Número de muestras de la señal de entrada
+    XX = np.zeros(N, dtype=np.complex128)  # Inicializamos un arreglo para almacenar la DFT
 
-#%% Configurar estilo global
-plt.rcParams['savefig.transparent'] = True
-plt.rcParams['axes.edgecolor'] = 'gray'
-plt.rcParams['axes.labelcolor'] = 'gray'
-plt.rcParams['xtick.color'] = 'gray'
-plt.rcParams['ytick.color'] = 'gray'
+    for k in range(N):
+        XX[k] = 0
+        for n in range(N):
+            XX[k] += xx[n] * np.exp(-2j * np.pi * k * n / N)
+    return XX/N
 
-# Generar y guardar figuras
-plot_signal(tiempo, SignalSen, 'Señal Senoidal')
-plot_signal(tiempo, SignalCua, 'Señal Cuadrada')
-plot_signal(tiempo, SignalTri, 'Señal Triangular')
+#%% Calculamos la DSP a partir del Algoritmo de la DFT
+XX = mi_funcion_DFT( xx )
 
-# Mostrar las imágenes en el notebook
-for title in ['Señal Senoidal', 'Señal Cuadrada', 'Señal Triangular']:
-    display(Image(filename=f'{title}.png'))
+# Calcular la magnitud del espectro en frecuencia
+X_mag = np.abs(XX)
+
+# Crear un vector de frecuencia
+df  = fs/N
+frequencies = np.arange(start=0, stop=(N)*df, step=df)
+bfrec = frequencies <= fs/2
+# Visualizar el espectro en frecuencia
+psd.plot_signal(frequencies[bfrec], 10*np.log10(2*np.abs(XX[bfrec])**2),'PSD', color='#CD5C5C', xlabel='Frecuencia [f]', ylabel='Amplitud [dB]')
