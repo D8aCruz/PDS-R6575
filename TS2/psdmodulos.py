@@ -69,7 +69,7 @@ def SignalGenerator(AA, ff, ph, dc, N, fs, signal = 'Senoidal', duty = None, wid
         raise ValueError("El tipo de señal debe ser 'Senoidal' o 'Cuadrada' o 'Triangular'.")
     
 #%% Graficar las señales
-def plot_signal(tt, signal, name, color, xlabel='Tiempo [s]', ylabel='AA [V]', snr=None):
+def plot_signal(tt, signal, name, color, xlabel='Tiempo [s]', ylabel='AA [V]'):
     plt.rcParams['savefig.transparent'] = True
     plt.rcParams['axes.edgecolor'] = 'gray'
     plt.rcParams['axes.labelcolor'] = 'gray'
@@ -82,4 +82,5 @@ def plot_signal(tt, signal, name, color, xlabel='Tiempo [s]', ylabel='AA [V]', s
     plt.grid(True, linestyle='dotted', color='gray')
     plt.savefig(f'{name}.png', bbox_inches='tight', transparent=True)
     plt.close()
+
     
